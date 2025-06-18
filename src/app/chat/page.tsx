@@ -1,4 +1,11 @@
 'use client';
+declare global {
+    interface Window {
+        SpeechRecognition?: any;
+        webkitSpeechRecognition?: any;
+    }
+}
+
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
