@@ -409,7 +409,7 @@ export default function ChatPage() {
                         <motion.div
                             className="relative"
                             whileHover={{ scale: 1.01 }}
-                            whileFocusWithin={{ scale: 1.02 }}
+{/*                             whileFocusWithin={{ scale: 1.02 }} */}
                         >
                             <motion.input
                                 ref={inputRef}
