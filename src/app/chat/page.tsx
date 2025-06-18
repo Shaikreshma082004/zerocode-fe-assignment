@@ -8,7 +8,6 @@ declare global {
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { FiSend, FiMoon, FiSun, FiMic, FiMicOff, FiDownload } from 'react-icons/fi';
 import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io';
@@ -56,7 +55,6 @@ export default function ChatPage() {
             setHistoryIndex(parsedHistory.length);
         }
 
-        // Check for SpeechRecognition support
         const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (SpeechRecognition) {
             setIsSpeechSupported(true);
@@ -102,7 +100,6 @@ export default function ChatPage() {
     }, [router]);
 
     useEffect(() => {
-        // Auto-send when recording stops and we have final transcript
         if (!isRecording && finalTranscript.trim()) {
             handleSend();
             setFinalTranscript('');
@@ -249,59 +246,23 @@ export default function ChatPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-gray-800 p-4">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="max-w-4xl mx-auto mt-8 relative"
-            >
-                <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-                    {[...Array(20)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute rounded-full bg-cyan-400/20 dark:bg-cyan-500/20"
-                            initial={{
-                                x: Math.random() * 100 + '%',
-                                y: Math.random() * 100 + '%',
-                                width: Math.random() * 10 + 5 + 'px',
-                                height: Math.random() * 10 + 5 + 'px',
-                            }}
-                            animate={{
-                                y: [0, Math.random() * 100 - 50],
-                                x: [0, Math.random() * 100 - 50],
-                                opacity: [0.2, 0.8, 0.2],
-                            }}
-                            transition={{
-                                duration: Math.random() * 10 + 10,
-                                repeat: Infinity,
-                                repeatType: 'reverse',
-                                ease: 'easeInOut',
-                            }}
-                        />
-                    ))}
-                </div>
+            <div className="max-w-4xl mx-auto mt-8 relative">
+                <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none"></div>
 
                 <div className="relative backdrop-blur-lg bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 rounded-3xl shadow-2xl overflow-hidden">
                     <div className="p-6 pb-4 flex justify-between items-center border-b border-white/20 dark:border-gray-700/50">
-                        <motion.h1
-                            className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                        >
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
                             Chatbot
-                        </motion.h1>
+                        </h1>
                         <div className="flex items-center space-x-4">
-                            <motion.button
+                            <button
                                 onClick={exportChat}
                                 disabled={messages.length === 0}
                                 className="p-2 rounded-full bg-cyan-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
                                 title="Export chat"
                             >
                                 <FiDownload />
-                            </motion.button>
+                            </button>
                             <ThemeToggle />
                         </div>
                     </div>
@@ -310,108 +271,64 @@ export default function ChatPage() {
                         ref={chatContainerRef}
                         className="h-[60vh] overflow-y-auto p-6 space-y-4 relative"
                     >
-                        <AnimatePresence>
-                            {messages.length === 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 0.6 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400"
-                                >
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.05, 1],
-                                            opacity: [0.6, 1, 0.6]
-                                        }}
-                                        transition={{
-                                            duration: 3,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="mb-4 text-5xl"
-                                    >
-                                        ✨
-                                    </motion.div>
-                                    <p className="text-xl">Start a conversation with Chatbot</p>
-                                    <p className="mt-2">Your messages will appear here</p>
-                                </motion.div>
-                            )}
+                        {messages.length === 0 && (
+                            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
+                                <div className="mb-4 text-5xl">✨</div>
+                                <p className="text-xl">Start a conversation with Chatbot</p>
+                                <p className="mt-2">Your messages will appear here</p>
+                            </div>
+                        )}
 
-                            {messages.map((msg) => (
-                                <motion.div
-                                    key={msg.id}
-                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{
-                                        type: 'spring',
-                                        stiffness: 500,
-                                        damping: 30,
-                                        duration: 0.3
-                                    }}
-                                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        {messages.map((msg) => (
+                            <div
+                                key={msg.id}
+                                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div
+                                    className={`relative max-w-[85%] p-4 rounded-2xl ${msg.sender === 'user'
+                                        ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
+                                        : 'bg-gray-200/90 dark:bg-gray-700/90 text-gray-800 dark:text-gray-200'
+                                        } shadow-md`}
                                 >
+                                    {msg.text}
                                     <div
-                                        className={`relative max-w-[85%] p-4 rounded-2xl ${msg.sender === 'user'
-                                            ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white'
-                                            : 'bg-gray-200/90 dark:bg-gray-700/90 text-gray-800 dark:text-gray-200'
-                                            } shadow-md`}
-                                    >
-                                        {msg.text}
-                                        <div
-                                            className={`absolute top-4 w-3 h-3 transform rotate-45 ${msg.sender === 'user'
-                                                ? 'bg-cyan-500 -right-1'
-                                                : 'bg-gray-200/90 dark:bg-gray-700/90 -left-1'
-                                                }`}
-                                        />
-                                    </div>
-                                </motion.div>
-                            ))}
+                                        className={`absolute top-4 w-3 h-3 transform rotate-45 ${msg.sender === 'user'
+                                            ? 'bg-cyan-500 -right-1'
+                                            : 'bg-gray-200/90 dark:bg-gray-700/90 -left-1'
+                                            }`}
+                                    />
+                                </div>
+                            </div>
+                        ))}
 
-                            {loading && messages.some(m => m.sender === 'user' && !messages.some(b => b.id.includes(m.id))) && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="flex justify-start"
-                                >
-                                    <div className="relative max-w-[85%] p-4 rounded-2xl bg-gray-200/90 dark:bg-gray-700/90 text-gray-800 dark:text-gray-200 shadow-md">
-                                        <div className="flex space-x-2 items-center">
-                                            <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '0ms' }} />
-                                            <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '300ms' }} />
-                                            <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '600ms' }} />
-                                        </div>
-                                        <div className="absolute top-4 w-3 h-3 transform rotate-45 bg-gray-200/90 dark:bg-gray-700/90 -left-1" />
+                        {loading && messages.some(m => m.sender === 'user' && !messages.some(b => b.id.includes(m.id))) && (
+                            <div className="flex justify-start">
+                                <div className="relative max-w-[85%] p-4 rounded-2xl bg-gray-200/90 dark:bg-gray-700/90 text-gray-800 dark:text-gray-200 shadow-md">
+                                    <div className="flex space-x-2 items-center">
+                                        <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '0ms' }} />
+                                        <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '300ms' }} />
+                                        <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" style={{ animationDelay: '600ms' }} />
                                     </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                    <div className="absolute top-4 w-3 h-3 transform rotate-45 bg-gray-200/90 dark:bg-gray-700/90 -left-1" />
+                                </div>
+                            </div>
+                        )}
                         <div ref={bottomRef} />
                     </div>
 
-                    <AnimatePresence>
-                        {showScrollButton && (
-                            <motion.button
-                                onClick={scrollToBottom}
-                                className="absolute bottom-27 right-9 p-3 rounded-full bg-cyan-500 text-white shadow-lg"
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0 }}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                title="Scroll to bottom"
-                            >
-                                <IoIosArrowDown size={24} />
-                            </motion.button>
-                        )}
-                    </AnimatePresence>
+                    {showScrollButton && (
+                        <button
+                            onClick={scrollToBottom}
+                            className="absolute bottom-27 right-9 p-3 rounded-full bg-cyan-500 text-white shadow-lg"
+                            title="Scroll to bottom"
+                        >
+                            <IoIosArrowDown size={24} />
+                        </button>
+                    )}
 
                     <div className="p-6 pt-4 border-t border-white/20 dark:border-gray-700/50">
-                        <motion.div
-                            className="relative"
-{/*                             whileHover={{ scale: 1.01 }} */}
-{/*                             whileFocusWithin={{ scale: 1.02 }} */}
-                        >
-                            <motion.input
+                        <div className="relative">
+                            <input
                                 ref={inputRef}
                                 type="text"
                                 value={input}
@@ -419,47 +336,32 @@ export default function ChatPage() {
                                 onChange={(e) => setInput(e.target.value)}
                                 className="w-full p-4 pr-20 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400/50 text-gray-800 dark:text-gray-200 shadow-sm"
                                 placeholder="Send a message..."
-                                whileFocus={{
-                                    boxShadow: '0 0 0 2px rgba(34, 211, 238, 0.5)'
-                                }}
                             />
-                            <motion.button
+                            <button
                                 onClick={toggleRecording}
                                 disabled={!isSpeechSupported || loading}
                                 className={`absolute right-12 top-1/2 transform -translate-y-1/2 p-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-cyan-500'} text-white disabled:opacity-50 disabled:cursor-not-allowed`}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
                                 title={isRecording ? 'Stop recording (will auto-send)' : 'Start voice input'}
                             >
                                 {isRecording ? <FiMicOff /> : <FiMic />}
-                            </motion.button>
-                            <motion.button
+                            </button>
+                            <button
                                 onClick={handleSend}
                                 disabled={loading || !input.trim()}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-cyan-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                animate={{
-                                    rotate: loading ? 360 : 0,
-                                    transition: loading ? { repeat: Infinity, duration: 1, ease: "linear" } : {}
-                                }}
                             >
                                 <FiSend />
-                            </motion.button>
-                        </motion.div>
+                            </button>
+                        </div>
                         {isRecording && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mt-2 text-sm text-cyan-600 dark:text-cyan-400 flex items-center"
-                            >
+                            <div className="mt-2 text-sm text-cyan-600 dark:text-cyan-400 flex items-center">
                                 <div className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse"></div>
                                 Listening... Speak now
-                            </motion.div>
+                            </div>
                         )}
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 }
